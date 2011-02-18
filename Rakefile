@@ -222,10 +222,5 @@ task :build_countries do
 end
 
 task :default do
-  require 'lib/tzinfo'
-  files = Dir.glob("lib/tzinfo/definitions/**/*.rb")
-  files.each do |f| 
-    puts f
-    require f 
-  end  
+  require 'marshal_zones'
 end

@@ -1,13 +1,13 @@
 #--
 # Copyright (c) 2005-2010 Philip Ross
-# 
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
 # to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 # copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
-# 
+#
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
 #
@@ -53,3 +53,9 @@ require 'tzinfo/country_info'
 
 require 'tzinfo/country'
 require 'tzinfo/country_timezone'
+
+
+marshal_fname = File.join(File.dirname(__FILE__), "../marshalled_zones")
+TZInfo::Timezone.load_marshal_file(marshal_fname) if File.exist?(marshal_fname)
+
+
