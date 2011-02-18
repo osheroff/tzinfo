@@ -33,92 +33,82 @@ def sh(*cmd, &block)
   if cmd.first =~ /\A__tar_with_owner__ -?([zjcvf]+)(.*)\z/
     opts = $1
     args = $2
-    cmd[0] = "tar c --owner 0 --group 0 -#{opts.gsub('c', '')}#{args}"    
+    cmd[0] = "tar c  -#{opts.gsub('c', '')}#{args}"    
   end
   
   orig_sh(*cmd, &block)
 end
 
-
-PKG_VERSION = "0.3.22"
-PKG_FILES = FileList[
-  'CHANGES',
-  'LICENSE',
-  'Rakefile',
-  'README',
-  'lib',
-  'lib/**/*'
-].delete_if {|f| f.include?('.svn')}
-PKG_TEST_FILES = FileList['test', 'test/**/*'].delete_if {|f| f.include?('.svn')}
-
-RDOC_OPTIONS = %w[--exclude definitions --exclude indexes]
-RDOC_EXTRA_FILES = %w[README CHANGES]
-
-BUILD_TZ_CLASSES_DIR = 'lib/tzinfo.build_tz_classes'
-
-SPEC = Gem::Specification.new do |s|
-  s.name = "tzinfo"
-  s.version = PKG_VERSION
-  s.author = "Philip Ross"
-  s.email = "phil.ross@gmail.com"
-  s.homepage = "http://tzinfo.rubyforge.org/"
-  s.platform = Gem::Platform::RUBY
-  s.summary = "Daylight-savings aware timezone library"  
-  s.description = "TZInfo is a Ruby library that uses the standard tz (Olson) database to provide daylight savings aware transformations between times in different time zones."
-  s.files = PKG_FILES
-  s.test_files = PKG_TEST_FILES
-  s.require_path = "lib"
-  s.has_rdoc = true
-  s.extra_rdoc_files = RDOC_EXTRA_FILES
-  s.rdoc_options = RDOC_OPTIONS
-  s.rubyforge_project = "tzinfo"
-end
-
-package_task = Rake::GemPackageTask.new(SPEC) do |pkg|
-  pkg.need_zip = true
-  pkg.need_tar_gz = true
-  pkg.tar_command = '__tar_with_owner__'
-end
-
-# Replace the Rake::PackageTask task that prepares the files to package with
-# a version that ensures the permissions are correct for the package.
-# Also just copy rather than link the files so that old versions are maintained.
-remove_task package_task.package_dir_path
-file package_task.package_dir_path => [package_task.package_dir] + package_task.package_files do
-  mkdir_p package_task.package_dir_path rescue nil
-  chmod(0755, package_task.package_dir_path)
-  package_task.package_files.each do |fn|
-    f = File.join(package_task.package_dir_path, fn)
-    fdir = File.dirname(f)
-    mkdir_p(fdir) if !File.exist?(fdir)
-    if File.directory?(fn)
-      mkdir_p(f)
-      chmod(0755, f)
-    else
-      rm_f f
-      cp(fn, f)
-      chmod(0644, f)
-    end
-  end
-end
-
-
-# Replace the Rake::GemPackageTask task that builds the gem with a version that
-# changes to the copied package directory first. This allows the gem builder
-# to pick up the correct file permissions.
-remove_task "#{package_task.package_dir}/#{package_task.gem_file}"
-file "#{package_task.package_dir}/#{package_task.gem_file}" => [package_task.package_dir] + package_task.gem_spec.files do
-  when_writing("Creating GEM") do
-    chdir(package_task.package_dir_path) do
-      Gem::Builder.new(package_task.gem_spec).build
-    end
-    
-    verbose(true) do
-      mv File.join(package_task.package_dir_path, package_task.gem_file), "#{package_task.package_dir}/#{package_task.gem_file}"
-    end
-  end
-end
-
+#
+#
+#RDOC_OPTIONS = %w[--exclude definitions --exclude indexes]
+#RDOC_EXTRA_FILES = %w[README CHANGES]
+#
+#BUILD_TZ_CLASSES_DIR = 'lib/tzinfo.build_tz_classes'
+#
+#SPEC = Gem::Specification.new do |s|
+#  s.name = "tzinfo"
+#  s.version = PKG_VERSION
+#  s.author = "Philip Ross"
+#  s.email = "phil.ross@gmail.com"
+#  s.homepage = "http://tzinfo.rubyforge.org/"
+#  s.platform = Gem::Platform::RUBY
+#  s.summary = "Daylight-savings aware timezone library"  
+#  s.description = "TZInfo is a Ruby library that uses the standard tz (Olson) database to provide daylight savings aware transformations between times in different time zones."
+#  s.files = PKG_FILES
+#  s.test_files = PKG_TEST_FILES
+#  s.require_path = "lib"
+#  s.has_rdoc = true
+#  s.extra_rdoc_files = RDOC_EXTRA_FILES
+#  s.rdoc_options = RDOC_OPTIONS
+#  s.rubyforge_project = "tzinfo"
+#end
+#
+#package_task = Rake::GemPackageTask.new(SPEC) do |pkg|
+#  pkg.need_zip = true
+#  pkg.need_tar_gz = true
+#  pkg.tar_command = '__tar_with_owner__'
+#end
+#
+## Replace the Rake::PackageTask task that prepares the files to package with
+## a version that ensures the permissions are correct for the package.
+## Also just copy rather than link the files so that old versions are maintained.
+#remove_task package_task.package_dir_path
+#file package_task.package_dir_path => [package_task.package_dir] + package_task.package_files do
+#  mkdir_p package_task.package_dir_path rescue nil
+#  chmod(0755, package_task.package_dir_path)
+#  package_task.package_files.each do |fn|
+#    f = File.join(package_task.package_dir_path, fn)
+#    fdir = File.dirname(f)
+#    mkdir_p(fdir) if !File.exist?(fdir)
+#    if File.directory?(fn)
+#      mkdir_p(f)
+#      chmod(0755, f)
+#    else
+#      rm_f f
+#      cp(fn, f)
+#      chmod(0644, f)
+#    end
+#  end
+#end
+#
+#
+## Replace the Rake::GemPackageTask task that builds the gem with a version that
+## changes to the copied package directory first. This allows the gem builder
+## to pick up the correct file permissions.
+#remove_task "#{package_task.package_dir}/#{package_task.gem_file}"
+#file "#{package_task.package_dir}/#{package_task.gem_file}" => [package_task.package_dir] + package_task.gem_spec.files do
+#  when_writing("Creating GEM") do
+#    chdir(package_task.package_dir_path) do
+#      Gem::Builder.new(package_task.gem_spec).build
+#    end
+#    
+#    verbose(true) do
+#      mv File.join(package_task.package_dir_path, package_task.gem_file), "#{package_task.package_dir}/#{package_task.gem_file}"
+#    end
+#  end
+#end
+#
 
 Rake::TestTask.new('test') do |t|
   # Force a particular timezone to be local (helps find issues when local
@@ -130,15 +120,6 @@ Rake::TestTask.new('test') do |t|
   t.verbose = true
 end
 
-
-Rake::RDocTask.new do |rdoc|
-  rdoc.rdoc_dir = 'doc'
-  rdoc.title = "TZInfo"
-  rdoc.options << '--inline-source'
-  rdoc.options.concat RDOC_OPTIONS
-  rdoc.rdoc_files.include(*RDOC_EXTRA_FILES) 
-  rdoc.rdoc_files.include('lib')  
-end
 
 task :build_tz_modules do
   require 'lib/tzinfo/tzdataparser'
@@ -238,4 +219,13 @@ task :build_countries do
   p.generate_countries = true
   p.generate_zones = false
   p.execute
+end
+
+task :default do
+  require 'lib/tzinfo'
+  files = Dir.glob("lib/tzinfo/definitions/**/*.rb")
+  files.each do |f| 
+    puts f
+    require f 
+  end  
 end
