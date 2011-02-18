@@ -71,7 +71,7 @@ module TZInfo
       zones.each { |k, v|
         if v.is_a?(Fixnum)
           info = TZInfo::LinkedTimezoneInfo.new(k, zones[v][1].identifier)
-          @@loaded_zones[k] = TZInfo::LinkedTimezone.new(info, zones[v][1])
+          @@loaded_zones[k] = TZInfo::LinkedTimezone.new(info, @@loaded_zones[zones[v][1].identifier])
         else
           @@loaded_zones[k] = TZInfo::DataTimezone.new(v)
         end
