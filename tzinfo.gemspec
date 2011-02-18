@@ -4,13 +4,12 @@ require 'rake'
 
 RDOC_OPTIONS = %w[--exclude definitions --exclude indexes]
 RDOC_EXTRA_FILES = %w[README CHANGES]
-PKG_VERSION = "0.3.23"
+PKG_VERSION = "0.3.25"
 
 PKG_FILES = FileList[
   'CHANGES',
   'LICENSE',
   'Rakefile',
-  'Makefile',
   'README',
   'lib',
   'lib/**/*'
