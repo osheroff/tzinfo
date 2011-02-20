@@ -66,17 +66,40 @@ module TZInfo
     @@loaded_zones = {}
 
     def self.load_marshal_file(zone_fname)
+      require 'benchmark'
       zones = Marshal.load(File.read(zone_fname)) rescue nil
       return unless zones
+
       zones.each { |k, v|
-        if v.is_a?(Fixnum)
-          info = TZInfo::LinkedTimezoneInfo.new(k, zones[v][1].identifier)
-          @@loaded_zones[k] = TZInfo::LinkedTimezone.new(info, @@loaded_zones[zones[v][1].identifier])
+        if v.is_a?(String)
+          info = TZInfo::LinkedTimezoneInfo.new(k, v)
+          @@loaded_zones[k] = TZInfo::LinkedTimezone.new(info)
         else
           @@loaded_zones[k] = TZInfo::DataTimezone.new(v)
         end
       }
     end
+
+    def self.dump_marshal_file(zone_fname)
+      # we dump either the DataTimezoneInfo object or the identifier that points to it.
+      to_dump = @@loaded_zones.map { |k, v|
+        if v.is_a?(TZInfo::DataTimezone)
+          [k,v.send(:info)]
+        elsif v.is_a?(TZInfo::LinkedTimezone)
+          [k, v.linked_timezone.send(:info).identifier]
+        end
+      }
+
+      # sort by the Datatimezones first, then the linked ones -- this should ensure 
+      # we only get one copy of the object.
+      to_dump.sort! { |a, b|
+        (a[1].is_a?(TZInfo::DataTimezoneInfo) ? 0 : 1) <=> (b[1].is_a?(TZInfo::DataTimezoneInfo) ? 0 : 1)
+      }
+
+      File.open(zone_fname, "w+") { |f|
+        f.write(Marshal.dump(to_dump))
+      }
+    end 
 
     # Whether the timezones index has been loaded yet.
     @@index_loaded = false

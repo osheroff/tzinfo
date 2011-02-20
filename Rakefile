@@ -222,5 +222,5 @@ task :build_countries do
 end
 
 task :default do
-  require 'marshal_zones'
+  require File.join(File.dirname(__FILE__), 'marshal_zones')
 end

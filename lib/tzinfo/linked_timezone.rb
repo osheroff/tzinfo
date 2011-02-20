@@ -44,13 +44,8 @@ module TZInfo
       @linked_timezone
     end
 
-    def linked_timezone=(tz)
-      @linked_timezone = tz
-    end
-
-    def self.new(info, data_timezone=nil)
+    def self.new(info)
       tz = super(info)
-      tz.linked_timezone = data_timezone if data_timezone
       tz.send(:setup, info)
       tz
     end
@@ -59,7 +54,7 @@ module TZInfo
 
       def setup(info)
         super(info)
-        @linked_timezone ||= Timezone.get(info.link_to_identifier)
+        @linked_timezone = Timezone.get(info.link_to_identifier)
       end
   end
 end
