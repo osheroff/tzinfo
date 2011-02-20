@@ -1,4 +1,4 @@
-require 'lib/tzinfo'
+require File.join(File.dirname(__FILE__),'lib/tzinfo')
 
 TZInfo::Timezone.all_identifiers.each do |ident|
   TZInfo::Timezone.get(ident)
