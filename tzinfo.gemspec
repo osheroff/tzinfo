@@ -1,21 +1,16 @@
-require 'fileutils'
-require 'rake'
-
-
 RDOC_OPTIONS = %w[--exclude definitions --exclude indexes]
 RDOC_EXTRA_FILES = %w[README CHANGES]
 PKG_VERSION = "0.3.25"
 
-PKG_FILES = FileList[
+PKG_FILES = [
   'CHANGES',
   'LICENSE',
   'Rakefile',
   'README',
-  'lib',
-  'lib/**/*'
-].delete_if {|f| f.include?('.svn')}
+  'lib'
+] + Dir["lib/**/*"]
 
-PKG_TEST_FILES = FileList['test', 'test/**/*'].delete_if {|f| f.include?('.svn')}
+PKG_TEST_FILES = Dir['test/**/*']
 
 
 Gem::Specification.new do |s|
